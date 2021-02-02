@@ -1,8 +1,15 @@
-from kigo.bpmn.elements import Element
+from kigo.bpmn.elements.element import Element
 
 class SequenceFlow(Element):
     item_name = "bpmn:sequenceFlow"
 
 
-    def __init__(self, destination_element:Element,  condition: str = None):
-        pass
+class Incoming(Element):
+    item_name = "bpmn:incoming"
+
+
+class Outgoing(Element):
+    item_name = "bpmn:outgoing"
+
+
+

@@ -1,4 +1,4 @@
-from kigo.bpmn.elements import Element
+from kigo.bpmn.elements.element import Element
 
 class Gateway(Element):
     item_name = "bpmn:gateway"

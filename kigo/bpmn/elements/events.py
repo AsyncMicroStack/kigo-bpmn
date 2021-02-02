@@ -1,7 +1,7 @@
-from kigo.bpmn.elements import Element
+from kigo.bpmn.elements.element import Element
 
 class Event(Element):
-    pass
+    item_name = "bpmn:event"
 
 
 class StartEvent(Event):
@@ -9,7 +9,7 @@ class StartEvent(Event):
 
 
 class StartMessageEvent(Event):
-    item_name = ""
+    item_name = "bpmn:startMessageEven"
 
 
 class EndEvent(Event):
@@ -17,15 +17,11 @@ class EndEvent(Event):
 
 
 class EndMessageEvent(Event):
-    item_name = ""
+    item_name = "bpmn:endMessageEvent"
 
 
 class IntermediateMessageCatchingEvent(Event):
-    item_name = ""
-
-
-class IntermediateMessageThrowingEvent(Event):
-    item_name = ""
+    item_name = "bpmn:intermediateMessageCatchingEvent"
 
 
 class MessageEventDefinition(Event):
@@ -39,5 +35,10 @@ class TimerEventDefinition(Event):
 class ConditionalEventDefinition(Event):
     item_name = "bpmn:conditionalEventDefinition"
 
+
 class SignalEventDefinition(Event):
     item_name = "bpmn:signalEventDefinition"
+
+
+class BoundaryEventn(Event):
+    item_name = "bpmn:boundaryEvent"

@@ -13,8 +13,6 @@ class Provider(Enum):
     EA         = "Enterprise Architect"
 
 
-
-
 class CamundaLoader:
 
     def __init__(self):
@@ -45,7 +43,7 @@ class EALoader:
 
 
 #xml = load_xml2dict("c:/workspace/resources/test1.bpmn")
-xml = load_xml2dict("c:/workspace/resources/example.xml", decode="Windows-1250")
+#xml = load_xml2dict("c:/workspace/resources/example.xml", decode="Windows-1250")
 
 import pprint
 #pprint.pprint(names)
@@ -69,14 +67,14 @@ class LoadDefinition:
             if name.startswith("bpmndi:"):
                 continue
 
-            attr_name = f"load_{self.get_name(name)}"
+            attr_name = f"load_{self.name2snake(name)}"
             call = getattr(self, attr_name, None)
             if call:
                 call(name, xml[name])
             else:
                 print(f"Not implemented: {attr_name}")
 
-    def get_name(self, name):
+    def name2snake(self, name):
         name = name.replace("bpmn:", "")
         name = re.sub(r'(?<!^)(?=[A-Z])', '_', name).lower()
         return name
@@ -86,7 +84,8 @@ class LoadDefinition:
         self.parse(xml)
 
     def load_process(self, name, xml):
-        self.defs[xml["@id"]] = names[name]()
+        self.defs[xml["@id"]] = names[name](id=xml["@id"], name=xml["@name"])
+        self.process = self.defs[xml["@id"]]
         self.parse(xml)
 
     def load_sub_process(self, name, xml):
@@ -95,22 +94,31 @@ class LoadDefinition:
 
     def load_service_task(self, name, xml):
         for task in xml:
-            self.defs[task["@id"]] = names[name]()
+            self.process.elements[task["@id"]] = names[name]()
+
+    def load_script_task(self, name, xml):
+        if type(xml) is collections.OrderedDict:
+            xml = [xml]
+        for task in xml:
+            self.process.elements[task["@id"]] = names[name](id=task["@id"], name=task["@name"], incoming=task["bpmn:incoming"], outgoing=task["bpmn:outgoing"])
 
     def load_exclusive_gateway(self, name, xml):
         for task in xml:
             o = names[name]()
             o.id = task["@id"]
-            self.defs[o.id] = o
+            self.process.elements[o.id] = o
 
     def load_sequence_flow(self, name, xml):
         for task in xml:
-            o = names[name]()
-            o.id = task["@id"]
-            self.defs[o.id] = o
+            self.process.elements[task["@id"]] = names[name](id=task["@id"], name=task.get("@name", None),
+                                                             source_ref=task["@sourceRef"],
+                                                             target_ref=task["@targetRef"])
 
     def load_start_event(self, name, xml):
-        self.defs[xml["@id"]] = names[name]()
+        print(xml)
+        self.process.elements[xml["@id"]] = names[name](id=xml["@id"], name=xml.get("@name", None), outgoing=xml["bpmn:outgoing"])
+        if name == "bpmn:startEvent":
+            self.process.start_events[xml["@id"]] = self.process.elements[xml["@id"]]
 
 
     def load_end_event(self, name, xml):
@@ -120,7 +128,7 @@ class LoadDefinition:
         for event in xml:
             o = names[name]()
             o.id = event["@id"]
-            self.defs[o.id] = o
+            self.process.elements[o.id] = o
 
     def load_boundary_event(self, name, xml):
         if type(xml) is collections.OrderedDict:
@@ -134,9 +142,14 @@ class LoadDefinition:
 
 
 loader = LoadDefinition()
-loader.load("c:/workspace/resources/example.xml", decode="Windows-1250")
+#loader.load("c:/workspace/resources/example.xml", decode="Windows-1250")
+loader.load("c:/workspace/kigo-bpmn/BPMN/tests/test-01.bpmn", decode="Windows-1250")
 pprint.pprint(loader.defs)
+print()
+pprint.pprint(loader.defs["process_test_logger_1"].elements)
+print(loader.defs["process_test_logger_1"].start_events)
 
+#pprint.pprint(names)
 #parse(xml)
 #pprint.pprint(defs)
 #print()

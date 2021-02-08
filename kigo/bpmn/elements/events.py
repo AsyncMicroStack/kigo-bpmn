@@ -7,9 +7,17 @@ class Event(Element):
 class StartEvent(Event):
     item_name = "bpmn:startEvent"
 
+    def __init__(self, id = None, name = None, outgoing = []):
+        self.id = id
+        self.name = name
+        self.outgoing = outgoing
+
+    def __repr__(self):
+        return f"{type(self)} <id '{self.id}'> <name '{self.name}'> <outgoing {self.outgoing}>"
+
 
 class StartMessageEvent(Event):
-    item_name = "bpmn:startMessageEven"
+    item_name = "bpmn:startMessageEvent"
 
 
 class EndEvent(Event):

@@ -3,6 +3,15 @@ from kigo.bpmn.elements.element import Element
 class Task(Element):
     item_name = "bpmn:task"
 
+    def __init__(self, id = None, name = None, incoming = [], outgoing = []):
+        self.id = id
+        self.name = name
+        self.incoming = incoming
+        self.outgoing = outgoing
+
+    def __repr__(self):
+        return f"{type(self)} <id '{self.id}'> <name '{self.name}'> <incoming '{self.incoming}'> < outgoing '{self.outgoing}'>"
+
 
 class ServiceTask(Task):
     item_name = "bpmn:serviceTask"

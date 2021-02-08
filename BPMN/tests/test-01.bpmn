@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_0vv031v" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.5.0">
+  <bpmn:process id="process_test_logger_1" name="Test logger 1" isExecutable="true" camunda:versionTag="1.0.0">
+    <bpmn:startEvent id="StartEvent">
+      <bpmn:outgoing>FlowStartEvent</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="FlowStartEvent" sourceRef="StartEvent" targetRef="CallPythonLogger" />
+    <bpmn:endEvent id="EndEvent">
+      <bpmn:incoming>FlowEndEvent</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="FlowEndEvent" sourceRef="CallPythonLogger" targetRef="EndEvent" />
+    <bpmn:scriptTask id="CallPythonLogger" name="Logging info" scriptFormat="py">
+      <bpmn:incoming>FlowStartEvent</bpmn:incoming>
+      <bpmn:outgoing>FlowEndEvent</bpmn:outgoing>
+      <bpmn:script>logging.info("hello")</bpmn:script>
+    </bpmn:scriptTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="process_test_logger_1">
+      <bpmndi:BPMNEdge id="Flow_1uomrsa_di" bpmnElement="FlowEndEvent">
+        <di:waypoint x="370" y="117" />
+        <di:waypoint x="432" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17jutdg_di" bpmnElement="FlowStartEvent">
+        <di:waypoint x="215" y="117" />
+        <di:waypoint x="270" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent">
+        <dc:Bounds x="179" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0sv1daw_di" bpmnElement="EndEvent">
+        <dc:Bounds x="432" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0un0q5g_di" bpmnElement="CallPythonLogger">
+        <dc:Bounds x="270" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -84,7 +84,7 @@ class LoadDefinition:
         self.parse(xml)
 
     def load_process(self, name, xml):
-        self.defs[xml["@id"]] = names[name](id=xml["@id"], name=xml["@name"])
+        self.defs[xml["@id"]] = names[name](id=xml["@id"], name=xml.get("@name", None))
         self.process = self.defs[xml["@id"]]
         self.parse(xml)
 
@@ -100,23 +100,46 @@ class LoadDefinition:
         if type(xml) is collections.OrderedDict:
             xml = [xml]
         for task in xml:
-            self.process.elements[task["@id"]] = names[name](id=task["@id"], name=task["@name"], incoming=task["bpmn:incoming"], outgoing=task["bpmn:outgoing"])
+            self.process.elements[task["@id"]] = names[name](id=task["@id"],
+                                                             name=task["@name"],
+                                                             incoming=task["bpmn:incoming"],
+                                                             outgoing=task["bpmn:outgoing"])
 
     def load_exclusive_gateway(self, name, xml):
-        for task in xml:
-            o = names[name]()
-            o.id = task["@id"]
-            self.process.elements[o.id] = o
+        if type(xml) is collections.OrderedDict:
+            xml = [xml]
+        for gateway in xml:
+            incoming = gateway.get("bpmn:incoming", [])
+            if incoming and not type(incoming) is list:
+                incoming = [incoming]
+            outgoing = gateway.get("bpmn:outgoing", [])
+            if outgoing and not type(outgoing) is list:
+                outgoing = [outgoing]
+            self.process.elements[gateway["@id"]] = names[name](id=gateway["@id"],
+                                                                name=gateway["@name"],
+                                                                incoming=incoming,
+                                                                outgoing=outgoing)
+
 
     def load_sequence_flow(self, name, xml):
-        for task in xml:
-            self.process.elements[task["@id"]] = names[name](id=task["@id"], name=task.get("@name", None),
-                                                             source_ref=task["@sourceRef"],
-                                                             target_ref=task["@targetRef"])
+        for flow in xml:
+            sequence_flow = names[name](id=flow["@id"],
+                                        name=flow.get("@name", None),
+                                        source_ref=flow["@sourceRef"],
+                                        target_ref=flow["@targetRef"])
+
+            if "bpmn:conditionExpression" in flow:
+                expression_type = flow["bpmn:conditionExpression"].get("@xsi:type", None)
+                expression_lang = flow["bpmn:conditionExpression"].get("@language", None)
+                expression = flow["bpmn:conditionExpression"].get("#text", None)
+                sequence_flow.add_condition_expression(expression_type=expression_type, language=expression_lang, expression=expression)
+            self.process.elements[flow["@id"]] = sequence_flow
+
 
     def load_start_event(self, name, xml):
-        print(xml)
-        self.process.elements[xml["@id"]] = names[name](id=xml["@id"], name=xml.get("@name", None), outgoing=xml["bpmn:outgoing"])
+        self.process.elements[xml["@id"]] = names[name](id=xml["@id"],
+                                                        name=xml.get("@name", None),
+                                                        outgoing=xml["bpmn:outgoing"])
         if name == "bpmn:startEvent":
             self.process.start_events[xml["@id"]] = self.process.elements[xml["@id"]]
 
@@ -126,9 +149,13 @@ class LoadDefinition:
             xml = [xml]
 
         for event in xml:
-            o = names[name]()
-            o.id = event["@id"]
-            self.process.elements[o.id] = o
+            incoming = event.get("bpmn:incoming", [])
+            if incoming and not type(incoming) is list:
+                incoming = [incoming]
+            self.process.elements[event["@id"]] = names[name](id=event["@id"],
+                                                              name=event.get("@name", None),
+                                                              incoming=incoming)
+
 
     def load_boundary_event(self, name, xml):
         if type(xml) is collections.OrderedDict:
@@ -143,12 +170,12 @@ class LoadDefinition:
 
 loader = LoadDefinition()
 #loader.load("c:/workspace/resources/example.xml", decode="Windows-1250")
-loader.load("c:/workspace/kigo-bpmn/BPMN/tests/test-01.bpmn", decode="Windows-1250")
+loader.load("c:/workspace/kigo-bpmn/BPMN/tests/test-03.bpmn", decode="Windows-1250")
 pprint.pprint(loader.defs)
 print()
-pprint.pprint(loader.defs["process_test_logger_1"].elements)
-print(loader.defs["process_test_logger_1"].start_events)
-
+pprint.pprint(loader.defs["Process_0d0kncd"].elements)
+print(loader.defs["Process_0d0kncd"].start_events)
+print(loader.defs["Process_0d0kncd"].elements["Flow_0xnqvit"])
 #pprint.pprint(names)
 #parse(xml)
 #pprint.pprint(defs)

@@ -8,6 +8,15 @@ class Gateway(Element):
 class ExclusiveGateway(Gateway):
     item_name = "bpmn:exclusiveGateway"
 
+    def __init__(self, id=None, name=None, incoming=[], outgoing=[]):
+        self.id = id
+        self.name = name
+        self.incoming = incoming
+        self.outgoing = outgoing
+
+    def __repr__(self):
+        return f"{type(self)} <id '{self.id}'> <name '{self.name}'> <incoming '{self.incoming}'> <outgoing '{self.outgoing}'>"
+
 
 class EventBasedGateway(Gateway):
     item_name = "bpmn:eventBasedGateway"

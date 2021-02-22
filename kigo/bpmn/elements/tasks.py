@@ -12,6 +12,11 @@ class Task(Element):
     def __repr__(self):
         return f"{type(self)} <id '{self.id}'> <name '{self.name}'> <incoming '{self.incoming}'> < outgoing '{self.outgoing}'>"
 
+class Script:
+
+    def __init__(self, script, script_format):
+        self.script = script
+        self.script_format = script_format
 
 class ServiceTask(Task):
     item_name = "bpmn:serviceTask"
@@ -19,6 +24,9 @@ class ServiceTask(Task):
 
 class ScriptTask(Task):
     item_name = "bpmn:scriptTask"
+
+    def __init__(self, id = None, name = None, script = None, incoming = [], outgoing = []):
+        self.script = script
 
 
 class SendTask(Task):

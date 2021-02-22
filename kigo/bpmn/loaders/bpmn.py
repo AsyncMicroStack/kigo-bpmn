@@ -53,12 +53,22 @@ import pprint
 #        print(item)
 
 
-class LoadDefinition:
+class ModelDefinition:
 
-    def load(self, fname, decode="utf-8"):
-        self.xml = load_xml2dict(fname, decode=decode)
+    def __init__(self):
+        self.xml = None
+        self.decode = None
+        self.file_name = None
         self.defs = {}
+
+
+    def load(self, file_name, decode="utf-8"):
+        self.file_name = file_name
+        self.decode = decode
+        self.defs = {}
+        self.xml = load_xml2dict(file_name, decode=decode)
         self.parse(self.xml)
+        return self.defs
 
     def parse(self, xml):
         for name in xml:
@@ -137,9 +147,12 @@ class LoadDefinition:
 
 
     def load_start_event(self, name, xml):
+        outgoing = xml["bpmn:outgoing"]
+        if type(xml) is collections.OrderedDict:
+            outgoing = [outgoing]
         self.process.elements[xml["@id"]] = names[name](id=xml["@id"],
                                                         name=xml.get("@name", None),
-                                                        outgoing=xml["bpmn:outgoing"])
+                                                        outgoing=outgoing)
         if name == "bpmn:startEvent":
             self.process.start_events[xml["@id"]] = self.process.elements[xml["@id"]]
 
@@ -168,14 +181,7 @@ class LoadDefinition:
 
 
 
-loader = LoadDefinition()
-#loader.load("c:/workspace/resources/example.xml", decode="Windows-1250")
-loader.load("c:/workspace/kigo-bpmn/BPMN/tests/test-03.bpmn", decode="Windows-1250")
-pprint.pprint(loader.defs)
-print()
-pprint.pprint(loader.defs["Process_0d0kncd"].elements)
-print(loader.defs["Process_0d0kncd"].start_events)
-print(loader.defs["Process_0d0kncd"].elements["Flow_0xnqvit"])
+
 #pprint.pprint(names)
 #parse(xml)
 #pprint.pprint(defs)

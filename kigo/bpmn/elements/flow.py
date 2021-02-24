@@ -11,7 +11,8 @@ class SequenceFlow(Element):
         self.condition_expression: ConditionExpression = None
 
     def add_condition_expression(self, expression_type=None, expression=None, language=None):
-        self.condition_expression = ConditionExpression(expression_type=expression_type, language=language, expression=expression)
+        if expression:
+            self.condition_expression = ConditionExpression(expression_type=expression_type, language=language, expression=expression)
 
     def __repr__(self):
         if self.condition_expression:

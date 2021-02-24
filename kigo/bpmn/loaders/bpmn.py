@@ -113,7 +113,10 @@ class ModelDefinition:
             self.process.elements[task["@id"]] = names[name](id=task["@id"],
                                                              name=task["@name"],
                                                              incoming=task["bpmn:incoming"],
-                                                             outgoing=task["bpmn:outgoing"])
+                                                             outgoing=task["bpmn:outgoing"],
+                                                             script=task.get("bpmn:script", None),
+                                                             script_format = task.get("@scriptFormat", None),
+                                                             resource = task.get("@camunda:resource", None))
 
     def load_exclusive_gateway(self, name, xml):
         if type(xml) is collections.OrderedDict:
@@ -126,7 +129,7 @@ class ModelDefinition:
             if outgoing and not type(outgoing) is list:
                 outgoing = [outgoing]
             self.process.elements[gateway["@id"]] = names[name](id=gateway["@id"],
-                                                                name=gateway["@name"],
+                                                                name=gateway.get("@name", None),
                                                                 incoming=incoming,
                                                                 outgoing=outgoing)
 

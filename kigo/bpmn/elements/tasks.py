@@ -10,13 +10,17 @@ class Task(Element):
         self.outgoing = outgoing
 
     def __repr__(self):
-        return f"{type(self)} <id '{self.id}'> <name '{self.name}'> <incoming '{self.incoming}'> < outgoing '{self.outgoing}'>"
+        return f"{type(self)} <id '{self.id}'> <name '{self.name}'> <incoming '{self.incoming}'> <outgoing '{self.outgoing}'>"
 
 class Script:
 
-    def __init__(self, script, script_format):
+    def __init__(self, script, script_format, resource):
         self.script = script
         self.script_format = script_format
+        self.resource = resource
+
+    def __repr__(self):
+        return f"{type(self)} <format '{self.script_format}'> <resource: '{self.resource}'> <script '{self.script}'>"
 
 class ServiceTask(Task):
     item_name = "bpmn:serviceTask"
@@ -25,8 +29,18 @@ class ServiceTask(Task):
 class ScriptTask(Task):
     item_name = "bpmn:scriptTask"
 
-    def __init__(self, id = None, name = None, script = None, incoming = [], outgoing = []):
+    def __init__(self, id = None, name = None, script = None, script_format = None, resource = None, incoming = [], outgoing = []):
+        self.id = id
+        self.name = name
+        self.incoming = incoming
+        self.outgoing = outgoing
         self.script = script
+        if script or resource:
+            self.script = Script(script, script_format, resource)
+
+    def __repr__(self):
+        return f"{type(self)} <id '{self.id}'> <name '{self.name}'> <incoming '{self.incoming}'> <outgoing '{self.outgoing}'> <script: '{self.script}'>"
+
 
 
 class SendTask(Task):

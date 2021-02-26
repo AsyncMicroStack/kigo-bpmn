@@ -9,7 +9,7 @@ class ProcessInstance:
     def __init__(self, process, env = {}):
         self.process = process
         self.env = env
-        self.current_tag = None
+        self.current_element_id = None
         self.__process = {func : getattr(self, func, None) for func in dir(ProcessInstance) if callable(getattr(ProcessInstance, func)) and func.startswith("process_")}
 
     def run(self, env = {}):
@@ -22,14 +22,15 @@ class ProcessInstance:
         self.__run__(element_id)
 
     def __run__(self, element_id):
-        while element_id:
-            element = self.process.elements[element_id]
+        self.current_element_id = element_id
+        while self.current_element_id:
+            element = self.process.elements[self.current_element_id]
             element_name = f"process_{names[element.__class__.__name__]}"
             call = getattr(self, element_name, None)
             if not call:
                 raise Exception(f"Unknown BPMN element: <{element.__class__.__name__}> call: <{element_name}>")
-            element_id = call(element)
-            if not element_id and not isinstance(element, EndEvent):
+            self.current_element_id = call(element)
+            if not self.current_element_id and not isinstance(element, EndEvent):
                 raise Exception(f"Finalized process without End Event! {element}")
 
 
@@ -60,8 +61,10 @@ class ProcessInstance:
                     raise Exception(message)
             else:
                 default_ids.append(flow_id)
-        if len(default_ids) != 1:
+        if len(default_ids) > 1:
             raise Exception(f"Duplicate default flow <{element}>")
+        elif not default_ids:
+            raise Exception(f"Unknown default flow <{element}>")
         return default_ids[0]
 
 

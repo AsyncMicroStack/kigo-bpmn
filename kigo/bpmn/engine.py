@@ -1,9 +1,18 @@
-from kigo.bpmn.loaders.bpmn import ModelDefinition
+import glob
+import os
+
+from kigo.bpmn.loaders.bpmn import BPMNFileLoader
 from kigo.bpmn.elements.flow import SequenceFlow
 from kigo.bpmn.elements.tasks import *
 from kigo.bpmn.elements.events import *
 from kigo.bpmn.elements.gateways import *
+from kigo.bpmn.elements.process import *
 from kigo.bpmn.names import names
+
+
+class ProcessRegistry:
+    process_definition = {}
+
 
 class ProcessInstance:
     def __init__(self, process, env = {}):
@@ -28,7 +37,7 @@ class ProcessInstance:
             element_name = f"process_{names[element.__class__.__name__]}"
             call = getattr(self, element_name, None)
             if not call:
-                raise Exception(f"Unknown BPMN element: <{element.__class__.__name__}> call: <{element_name}>")
+                raise Exception(f"Not implemented BPMN element: <{element.__class__.__name__}> call: <{element_name}>")
             self.current_element_id = call(element)
             if not self.current_element_id and not isinstance(element, EndEvent):
                 raise Exception(f"Finalized process without End Event! {element}")
@@ -67,26 +76,56 @@ class ProcessInstance:
             raise Exception(f"Unknown default flow <{element}>")
         return default_ids[0]
 
+    def process_call_activity_task(self, element: CallActivityTask):
+        if not element.called_element in ProcessRegistry.process_definition:
+            raise Exception(f"Unknown process id <{element.called_element}>")
+        process_model = ProcessRegistry.process_definition[element.called_element]
+        process_instance = ProcessInstance(process_model)
+        process_instance.run(env=self.env)
+        return element.outgoing
 
 
 class ProcessRuntime:
 
-    def __init__(self, process_model):
-        self.process_model = process_model
+    def __init__(self):
         self.env = None
 
+    def load(self, file_path):
+        """
+        Directory with bpmn files or path to bpmn file.
+        :param file_path:
+        :return:
+        """
+        files = [file_path]
+        if not file_path.endswith(".bpmn"):
+            path = os.path.join(file_path, "**/*.bpmn")
+            files = glob.glob(path, recursive=True)
+
+        bpmn_loader = BPMNFileLoader()
+        for file in files:
+            model = bpmn_loader.load(file)
+            for element_id in model:
+                clazz = model[element_id]
+                if isinstance(clazz, Process):
+                    if element_id in ProcessRegistry.process_definition:
+                        raise Exception(f"Duplicate process id <{element_id}> file <{file}>.")
+                    ProcessRegistry.process_definition[element_id] = model[element_id]
+
+
     def create_process_instance(self, process_id: str, env = {}):
-        process = self.process_model[process_id]
+        process = ProcessRegistry.process_definition[process_id]
         return ProcessInstance(process, env)
 
 
 
 
-
+import pprint
 import time
-model = ModelDefinition().load("c:/workspace/python/kigo-bpmn/BPMN/tests/test-03.bpmn", decode="Windows-1250")
-runtime = ProcessRuntime(process_model=model)
-process = runtime.create_process_instance("process")
+
+runtime = ProcessRuntime()
+runtime.load("c:/workspace/python/kigo-bpmn/BPMN/tests")
+pprint.pprint(ProcessRegistry.process_definition)
+process = runtime.create_process_instance("ProcessCallActivity")
 c0 =time.time()
 process.run()
 print(process.env)

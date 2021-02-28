@@ -41,7 +41,7 @@ class EALoader:
         self.sxml = sxml
 
 
-class ModelDefinition:
+class BPMNFileLoader:
 
     def __init__(self):
         self.xml = None
@@ -70,7 +70,7 @@ class ModelDefinition:
             if call:
                 call(name, xml[name])
             else:
-                print(f"Not implemented: {attr_name}")
+                raise Exception(f"Not implemented: {attr_name}")
 
     def name2snake(self, name):
         name = name.replace("bpmn:", "")
@@ -78,11 +78,13 @@ class ModelDefinition:
         return name
 
     def load_definitions(self, name, xml):
+        if not name in names:
+            raise Exception(f"Not implemented tag: <{name}>")
         self.defs[xml["@id"]] = names[name]()
         self.parse(xml)
 
     def load_process(self, name, xml):
-        self.defs[xml["@id"]] = names[name](eid=xml["@id"], name=xml.get("@name", None))
+        self.defs[xml["@id"]] = names[name](eid=xml["@id"], name=xml.get("@name", None), file_name = self.file_name)
         self.process = self.defs[xml["@id"]]
         self.parse(xml)
 
@@ -105,6 +107,30 @@ class ModelDefinition:
                                                              script=task.get("bpmn:script", None),
                                                              script_format = task.get("@scriptFormat", None),
                                                              resource = task.get("@camunda:resource", None))
+
+    def load_call_activity(self, name, xml):
+        if type(xml) is collections.OrderedDict:
+            xml = [xml]
+        for task in xml:
+            self.process.elements[task["@id"]] = names[name](eid=task["@id"],
+                                                             name=task["@name"],
+                                                             incoming=task["bpmn:incoming"],
+                                                             outgoing=task["bpmn:outgoing"],
+                                                             called_element=task.get("@calledElement", None))
+
+    def load_data_object_reference(self, name, xml):
+        if type(xml) is collections.OrderedDict:
+            xml = [xml]
+        for data_object in xml:
+            self.process.elements[data_object["@id"]] = names[name](eid=data_object["@id"],
+                                                                    name=data_object.get("@name", None),
+                                                                    data_object_ref=data_object.get("@dataObjectRef", None))
+
+    def load_data_object(self, name, xml):
+        if type(xml) is collections.OrderedDict:
+            xml = [xml]
+        for data_object in xml:
+            self.process.elements[data_object["@id"]] = names[name](eid=data_object["@id"])
 
     def load_exclusive_gateway(self, name, xml):
         if type(xml) is collections.OrderedDict:

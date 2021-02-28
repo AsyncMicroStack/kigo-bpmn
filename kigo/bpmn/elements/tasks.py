@@ -41,7 +41,7 @@ class ScriptTask(Task):
             self.script = Script(script, script_format, resource)
 
     def __repr__(self):
-        return f"{type(self)} <id '{self.eid}'> <name '{self.name}'> <incoming '{self.incoming}'> <outgoing '{self.outgoing}'> <script: '{self.script}'>"
+        return f"{type(self)} <id '{self.eid}'> <name '{self.name}'> <incoming '{self.incoming}'> <outgoing '{self.outgoing}'> <script '{self.script}'>"
 
 
 
@@ -67,6 +67,17 @@ class BusinessRuleTask(Task):
 
 class CallActivityTask(Task):
     item_name = "bpmn:callActivity"
+
+    def __init__(self, eid=None, name=None, called_element=None, incoming=[], outgoing=[]):
+        self.eid = eid
+        self.name = name
+        self.incoming = incoming
+        self.outgoing = outgoing
+        self.called_element = called_element
+
+    def __repr__(self):
+        return f"{type(self)} <id '{self.eid}'> <name '{self.name}'> <incoming '{self.incoming}'> <outgoing '{self.outgoing}'> <called '{self.called_element}'>"
+
 
 
 class SubProcessTask(Task):

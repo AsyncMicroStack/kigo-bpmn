@@ -41,18 +41,6 @@ class EALoader:
         self.sxml = sxml
 
 
-
-#xml = load_xml2dict("c:/workspace/resources/test1.bpmn")
-#xml = load_xml2dict("c:/workspace/resources/example.xml", decode="Windows-1250")
-
-import pprint
-#pprint.pprint(names)
-#for element in xml["bpmn:definitions"]["bpmn:process"]:
-#    print(xml["bpmn:definitions"]["bpmn:process"][element])
-#    for item in xml["bpmn:definitions"]["bpmn:process"][element]:
-#        print(item)
-
-
 class ModelDefinition:
 
     def __init__(self):
@@ -94,7 +82,7 @@ class ModelDefinition:
         self.parse(xml)
 
     def load_process(self, name, xml):
-        self.defs[xml["@id"]] = names[name](id=xml["@id"], name=xml.get("@name", None))
+        self.defs[xml["@id"]] = names[name](eid=xml["@id"], name=xml.get("@name", None))
         self.process = self.defs[xml["@id"]]
         self.parse(xml)
 
@@ -110,7 +98,7 @@ class ModelDefinition:
         if type(xml) is collections.OrderedDict:
             xml = [xml]
         for task in xml:
-            self.process.elements[task["@id"]] = names[name](id=task["@id"],
+            self.process.elements[task["@id"]] = names[name](eid=task["@id"],
                                                              name=task["@name"],
                                                              incoming=task["bpmn:incoming"],
                                                              outgoing=task["bpmn:outgoing"],
@@ -128,7 +116,7 @@ class ModelDefinition:
             outgoing = gateway.get("bpmn:outgoing", [])
             if outgoing and not type(outgoing) is list:
                 outgoing = [outgoing]
-            self.process.elements[gateway["@id"]] = names[name](id=gateway["@id"],
+            self.process.elements[gateway["@id"]] = names[name](eid=gateway["@id"],
                                                                 name=gateway.get("@name", None),
                                                                 incoming=incoming,
                                                                 outgoing=outgoing)
@@ -136,7 +124,7 @@ class ModelDefinition:
 
     def load_sequence_flow(self, name, xml):
         for flow in xml:
-            sequence_flow = names[name](id=flow["@id"],
+            sequence_flow = names[name](eid=flow["@id"],
                                         name=flow.get("@name", None),
                                         source_ref=flow["@sourceRef"],
                                         target_ref=flow["@targetRef"])
@@ -153,7 +141,7 @@ class ModelDefinition:
         outgoing = xml["bpmn:outgoing"]
         if type(xml) is collections.OrderedDict:
             outgoing = [outgoing]
-        self.process.elements[xml["@id"]] = names[name](id=xml["@id"],
+        self.process.elements[xml["@id"]] = names[name](eid=xml["@id"],
                                                         name=xml.get("@name", None),
                                                         outgoing=outgoing)
         if name == "bpmn:startEvent":
@@ -168,7 +156,7 @@ class ModelDefinition:
             incoming = event.get("bpmn:incoming", [])
             if incoming and not type(incoming) is list:
                 incoming = [incoming]
-            self.process.elements[event["@id"]] = names[name](id=event["@id"],
+            self.process.elements[event["@id"]] = names[name](eid=event["@id"],
                                                               name=event.get("@name", None),
                                                               incoming=incoming)
 
@@ -181,14 +169,3 @@ class ModelDefinition:
             o = names[name]()
             o.id = event["@id"]
             self.defs[o.id] = o
-
-
-
-
-#pprint.pprint(names)
-#parse(xml)
-#pprint.pprint(defs)
-#print()
-#print(xml["bpmn:definitions"]["bpmn:process"]["bpmn:serviceTask"])
-#print(xml["bpmn:definitions"]["bpmn:process"].keys()) # ["bpmn:process"]["bpmn:serviceTask"])
-#print(len(xml["bpmn:definitions"]["bpmn:process"]["bpmn:serviceTask"]))

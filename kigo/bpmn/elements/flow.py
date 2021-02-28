@@ -3,8 +3,8 @@ from kigo.bpmn.elements.element import Element
 class SequenceFlow(Element):
     item_name = "bpmn:sequenceFlow"
 
-    def __init__(self, id = None, name = None, source_ref = [], target_ref = []):
-        self.id = id
+    def __init__(self, eid=None, name=None, source_ref=[], target_ref=[]):
+        self.eid = eid
         self.name = name
         self.source_ref = source_ref
         self.target_ref = target_ref
@@ -17,8 +17,8 @@ class SequenceFlow(Element):
     def __repr__(self):
         if self.condition_expression:
             expression = self.condition_expression.expression
-            return f"{type(self)} <id '{self.id}'> <name '{self.name}'> <sourceRef {self.source_ref}> <targetRef {self.target_ref}> <expression '{expression}'>"
-        return f"{type(self)} <id '{self.id}'> <name '{self.name}'> <sourceRef {self.source_ref}> <targetRef {self.target_ref}>"
+            return f"{type(self)} <id '{self.eid}'> <name '{self.name}'> <sourceRef {self.source_ref}> <targetRef {self.target_ref}> <expression '{expression}'>"
+        return f"{type(self)} <id '{self.eid}'> <name '{self.name}'> <sourceRef {self.source_ref}> <targetRef {self.target_ref}>"
 
 
 class ConditionExpression:

@@ -7,13 +7,13 @@ class Event(Element):
 class StartEvent(Event):
     item_name = "bpmn:startEvent"
 
-    def __init__(self, id = None, name = None, outgoing = []):
-        self.id = id
+    def __init__(self, eid=None, name=None, outgoing=[]):
+        self.eid = eid
         self.name = name
         self.outgoing = outgoing
 
     def __repr__(self):
-        return f"{type(self)} <id '{self.id}'> <name '{self.name}'> <outgoing {self.outgoing}>"
+        return f"{type(self)} <id '{self.eid}'> <name '{self.name}'> <outgoing {self.outgoing}>"
 
 
 class StartMessageEvent(Event):
@@ -23,13 +23,13 @@ class StartMessageEvent(Event):
 class EndEvent(Event):
     item_name = "bpmn:endEvent"
 
-    def __init__(self, id = None, name = None, incoming = []):
-        self.id = id
+    def __init__(self, eid=None, name=None, incoming=[]):
+        self.eid = eid
         self.name = name
         self.incoming = incoming
 
     def __repr__(self):
-        return f"{type(self)} <id '{self.id}'> <name '{self.name}'> <incoming {self.incoming}>"
+        return f"{type(self)} <id '{self.eid}'> <name '{self.name}'> <incoming {self.incoming}>"
 
 
 class EndMessageEvent(Event):

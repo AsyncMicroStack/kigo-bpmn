@@ -101,7 +101,7 @@ class BPMNFileLoader:
             xml = [xml]
         for task in xml:
             self.process.elements[task["@id"]] = names[name](eid=task["@id"],
-                                                             name=task["@name"],
+                                                             name=task.get("@name", "unnamed"),
                                                              incoming=task["bpmn:incoming"],
                                                              outgoing=task["bpmn:outgoing"],
                                                              script=task.get("bpmn:script", None),

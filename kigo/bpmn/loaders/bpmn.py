@@ -84,7 +84,7 @@ class BPMNFileLoader:
         self.parse(xml)
 
     def load_process(self, name, xml):
-        self.defs[xml["@id"]] = names[name](eid=xml["@id"], name=xml.get("@name", None), version = xml.get("@camunda:versionTag", (0,0,0)), file_name = self.file_name)
+        self.defs[xml["@id"]] = names[name](eid=xml["@id"], name=xml.get("@name", "unnamed"), version = xml.get("@camunda:versionTag", (0,0,0)), file_name = self.file_name)
         self.process = self.defs[xml["@id"]]
         self.parse(xml)
 
@@ -113,7 +113,7 @@ class BPMNFileLoader:
             xml = [xml]
         for task in xml:
             self.process.elements[task["@id"]] = names[name](eid=task["@id"],
-                                                             name=task["@name"],
+                                                             name=task.get("@name", "unnamed"),
                                                              incoming=task["bpmn:incoming"],
                                                              outgoing=task["bpmn:outgoing"],
                                                              called_element=task.get("@calledElement", None))
@@ -123,7 +123,7 @@ class BPMNFileLoader:
             xml = [xml]
         for data_object in xml:
             self.process.elements[data_object["@id"]] = names[name](eid=data_object["@id"],
-                                                                    name=data_object.get("@name", None),
+                                                                    name=data_object.get("@name", "unnamed"),
                                                                     data_object_ref=data_object.get("@dataObjectRef", None))
 
     def load_data_object(self, name, xml):
@@ -143,7 +143,7 @@ class BPMNFileLoader:
             if outgoing and not type(outgoing) is list:
                 outgoing = [outgoing]
             self.process.elements[gateway["@id"]] = names[name](eid=gateway["@id"],
-                                                                name=gateway.get("@name", None),
+                                                                name=gateway.get("@name", "unnamed"),
                                                                 incoming=incoming,
                                                                 outgoing=outgoing)
 
@@ -151,7 +151,7 @@ class BPMNFileLoader:
     def load_sequence_flow(self, name, xml):
         for flow in xml:
             sequence_flow = names[name](eid=flow["@id"],
-                                        name=flow.get("@name", None),
+                                        name=flow.get("@name", "unnamed"),
                                         source_ref=flow["@sourceRef"],
                                         target_ref=flow["@targetRef"])
 
@@ -168,7 +168,7 @@ class BPMNFileLoader:
         if type(xml) is collections.OrderedDict:
             outgoing = [outgoing]
         self.process.elements[xml["@id"]] = names[name](eid=xml["@id"],
-                                                        name=xml.get("@name", None),
+                                                        name=xml.get("@name", "unnamed"),
                                                         outgoing=outgoing)
         if name == "bpmn:startEvent":
             self.process.start_events[xml["@id"]] = self.process.elements[xml["@id"]]
@@ -183,7 +183,7 @@ class BPMNFileLoader:
             if incoming and not type(incoming) is list:
                 incoming = [incoming]
             self.process.elements[event["@id"]] = names[name](eid=event["@id"],
-                                                              name=event.get("@name", None),
+                                                              name=event.get("@name", "unnamed"),
                                                               incoming=incoming)
 
 

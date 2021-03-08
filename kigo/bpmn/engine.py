@@ -1,5 +1,6 @@
 import glob
 import os
+import pickle
 
 from kigo.bpmn.loaders.bpmn import BPMNFileLoader
 from kigo.bpmn.elements.flow import SequenceFlow
@@ -20,6 +21,7 @@ class ProcessInstance:
         self.process = process
         self.env = env
         self.current_element_id = None
+        self.tokens = {}
         self.__process = {func : getattr(self, func, None) for func in dir(ProcessInstance) if callable(getattr(ProcessInstance, func)) and func.startswith("process_")}
 
     def run(self, env = {}):
@@ -111,6 +113,17 @@ class ProcessRuntime:
                     if element_id in ProcessRegistry.process_definition:
                         raise Exception(f"Duplicate process id <{element_id}> file <{file}>.")
                     ProcessRegistry.process_definition[element_id] = model[element_id]
+
+
+    def save(self, file_path):
+        for process_id in ProcessRegistry.process_definition:
+            process = ProcessRegistry.process_definition[process_id]
+            fdir = os.path.join(file_path, str(process.version))
+            fpath = os.path.join(fdir, f"{process.eid}.cbpmn")
+            if not os.path.exists(fdir):
+                os.makedirs(fdir, exist_ok=True)
+            with open(fpath, "wb") as f:
+                pickle.dump(ProcessRegistry.process_definition[process_id], f)
 
 
     def create_process_instance(self, process_id: str, env = {}):

@@ -84,7 +84,7 @@ class BPMNFileLoader:
         self.parse(xml)
 
     def load_process(self, name, xml):
-        self.defs[xml["@id"]] = names[name](eid=xml["@id"], name=xml.get("@name", None), file_name = self.file_name)
+        self.defs[xml["@id"]] = names[name](eid=xml["@id"], name=xml.get("@name", None), version = xml.get("@camunda:versionTag", (0,0,0)), file_name = self.file_name)
         self.process = self.defs[xml["@id"]]
         self.parse(xml)
 
